@@ -34,17 +34,27 @@ void* handle_connection(void* s_) {
 }
 
 int main() {
+  printf("WTF\n");
   int ev = st_set_eventsys(ST_EVENTSYS_ALT);
   // check if the event notification mechanism is Mac OS X one.
+
   if (ev != 0) {
       fprintf(stderr, "%d", ev);
       exit(1);
   }
 
   st_init();
+
+  int fd = st_getfdlimit();
+  printf("%d\n", fd);
+
   st_randomize_stacks(1);
 
   int ret, sock = socket(PF_INET, SOCK_STREAM, 0);
+  if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0) {
+    perror("setsockopt(SO_REUSEADDR) failed");
+    exit(1);
+  }
   struct sockaddr_in serv_addr;
   memset(&serv_addr, 0, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
